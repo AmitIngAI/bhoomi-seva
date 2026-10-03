@@ -154,30 +154,32 @@ function SearchPage() {
   const totalPages = Math.ceil(filteredRecords.length / recordsPerPage);
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="w-full h-full bg-transparent p-2 sm:p-4">
+      <div className="w-full max-w-full mx-auto">
 
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-navy-800 to-navy-900 rounded-full mb-4 shadow-xl">
-            <Search className="text-white" size={32} />
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-navy-800 flex items-center gap-3">
+              <Search className="text-orange-500" size={28} />
+              Search Land Records
+            </h1>
+            <p className="text-gray-600 text-sm mt-1">
+              Total: <span className="font-bold text-orange-500">{allRecords.length}</span>
+              {filteredRecords.length !== allRecords.length && (
+                <> | Showing: <span className="font-bold text-orange-500">{filteredRecords.length}</span></>
+              )}
+              <span className="ml-2">| 💡 Click any row to view full document</span>
+            </p>
           </div>
-          <h1 className="text-4xl font-bold text-navy-800 mb-2">Search Land Records</h1>
-          <p className="text-gray-600 text-lg">
-            Total Records: <span className="font-bold text-orange-500">{allRecords.length}</span>
-            {filteredRecords.length !== allRecords.length && (
-              <> | Showing: <span className="font-bold text-orange-500">{filteredRecords.length}</span></>
-            )}
-          </p>
-          <p className="text-sm text-gray-500 mt-1">💡 Click any row to view full document details</p>
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Filter className="text-orange-500" size={20} />
-              <h3 className="font-bold text-navy-800 text-lg">Filters</h3>
+              <h3 className="font-bold text-navy-800 text-base sm:text-lg">Filters</h3>
             </div>
             {(searchQuery || selectedVillage !== "all" || selectedType !== "all") && (
               <button
@@ -189,22 +191,22 @@ function SearchPage() {
             )}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
               <input
                 type="text"
-                placeholder="Search by Survey No / Village / Owner..."
+                placeholder="Search Survey No / Village / Owner..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+                className="w-full pl-10 pr-4 py-2.5 sm:py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"
               />
             </div>
 
             <select
               value={selectedVillage}
               onChange={(e) => setSelectedVillage(e.target.value)}
-              className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"
+              className="px-3 sm:px-4 py-2.5 sm:py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"
             >
               <option value="all">All Villages ({villages.length})</option>
               {villages.map((v) => (
@@ -215,7 +217,7 @@ function SearchPage() {
             <select
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value)}
-              className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"
+              className="px-3 sm:px-4 py-2.5 sm:py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"
             >
               <option value="all">All Land Types ({landTypes.length})</option>
               {landTypes.map((tp) => (
@@ -226,13 +228,13 @@ function SearchPage() {
         </div>
 
         {loading ? (
-          <div className="bg-white rounded-2xl shadow-lg p-20 text-center">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-20 text-center">
             <Loader2 className="animate-spin mx-auto text-orange-500" size={48} />
-            <p className="text-gray-600 mt-4 text-lg">Loading records...</p>
+            <p className="text-gray-600 mt-4 text-base sm:text-lg">Loading records...</p>
           </div>
         ) : filteredRecords.length === 0 ? (
-          <div className="bg-white rounded-2xl shadow-lg p-20 text-center">
-            <p className="text-gray-600 mt-4 text-lg font-semibold">No records found</p>
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-20 text-center">
+            <p className="text-gray-600 mt-4 text-base sm:text-lg font-semibold">No records found</p>
             <button
               onClick={clearFilters}
               className="mt-4 bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg font-semibold transition"
@@ -242,38 +244,37 @@ function SearchPage() {
           </div>
         ) : (
           <>
-            {/* TABLE - Click any row to open document */}
-            <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-4">
-              <div className="overflow-x-auto">
-                <table className="w-full text-xs">
-                  <thead className="bg-gradient-to-r from-navy-800 to-navy-900 text-white">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-4">
+              <div className="w-full overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+                <table className="w-full text-xs min-w-[1500px]">
+                  <thead className="bg-gradient-to-r from-navy-800 to-navy-900 text-white sticky top-0">
                     <tr>
-                      <th className="px-3 py-3 text-left font-semibold">#</th>
-                      <th className="px-3 py-3 text-left font-semibold">Taluka</th>
-                      <th className="px-3 py-3 text-left font-semibold">District</th>
-                      <th className="px-3 py-3 text-left font-semibold">Land Type</th>
-                      <th className="px-3 py-3 text-left font-semibold">Category</th>
-                      <th className="px-3 py-3 text-right font-semibold">RR Rate<br/>(₹/sqft)</th>
-                      <th className="px-3 py-3 text-left font-semibold">Coordinates</th>
-                      <th className="px-3 py-3 text-right font-semibold">Area<br/>(sqft)</th>
-                      <th className="px-3 py-3 text-left font-semibold">Road</th>
-                      <th className="px-3 py-3 text-right font-semibold">Highway<br/>(km)</th>
-                      <th className="px-3 py-3 text-right font-semibold">City<br/>(km)</th>
-                      <th className="px-3 py-3 text-right font-semibold">School<br/>(km)</th>
-                      <th className="px-3 py-3 text-right font-semibold">Hospital<br/>(km)</th>
-                      <th className="px-3 py-3 text-right font-semibold">Market<br/>(km)</th>
-                      <th className="px-3 py-3 text-right font-semibold">Historical<br/>Price</th>
-                      <th className="px-3 py-3 text-right font-semibold">Govt<br/>Rate</th>
-                      <th className="px-3 py-3 text-right font-semibold">Sale<br/>Price</th>
-                      <th className="px-3 py-3 text-right font-semibold">Market<br/>Price</th>
-                      <th className="px-3 py-3 text-right font-semibold bg-orange-600">
+                      <th className="px-3 py-4 text-left font-semibold">#</th>
+                      <th className="px-3 py-4 text-left font-semibold">Taluka</th>
+                      <th className="px-3 py-4 text-left font-semibold">District</th>
+                      <th className="px-3 py-4 text-left font-semibold">Land Type</th>
+                      <th className="px-3 py-4 text-left font-semibold">Category</th>
+                      <th className="px-3 py-4 text-right font-semibold">RR Rate<br/>(₹/sqft)</th>
+                      <th className="px-3 py-4 text-left font-semibold">Coordinates</th>
+                      <th className="px-3 py-4 text-right font-semibold">Area<br/>(sqft)</th>
+                      <th className="px-3 py-4 text-left font-semibold">Road</th>
+                      <th className="px-3 py-4 text-right font-semibold">Highway<br/>(km)</th>
+                      <th className="px-3 py-4 text-right font-semibold">City<br/>(km)</th>
+                      <th className="px-3 py-4 text-right font-semibold">School<br/>(km)</th>
+                      <th className="px-3 py-4 text-right font-semibold">Hospital<br/>(km)</th>
+                      <th className="px-3 py-4 text-right font-semibold">Market<br/>(km)</th>
+                      <th className="px-3 py-4 text-right font-semibold">Historical<br/>Price</th>
+                      <th className="px-3 py-4 text-right font-semibold">Govt<br/>Rate</th>
+                      <th className="px-3 py-4 text-right font-semibold">Sale<br/>Price</th>
+                      <th className="px-3 py-4 text-right font-semibold">Market<br/>Price</th>
+                      <th className="px-3 py-4 text-right font-semibold bg-orange-600">
                         <div className="flex items-center justify-end gap-1">
                           <TrendingUp size={12} />
                           AI Predicted
                         </div>
                       </th>
-                      <th className="px-3 py-3 text-left font-semibold">Survey No</th>
-                      <th className="px-3 py-3 text-left font-semibold">Village</th>
+                      <th className="px-3 py-4 text-left font-semibold">Survey No</th>
+                      <th className="px-3 py-4 text-left font-semibold">Village</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -351,7 +352,7 @@ function SearchPage() {
                             <Loader2 className="animate-spin inline text-orange-500" size={14} />
                           )}
                         </td>
-                        <td className="px-3 py-3 font-bold text-navy-800">
+                        <td className="px-3 py-3 font-bold text-navy-800 whitespace-nowrap">
                           {record.surveyNo}
                         </td>
                         <td className="px-3 py-3">
@@ -368,8 +369,8 @@ function SearchPage() {
             </div>
 
             {/* Pagination */}
-            <div className="bg-white rounded-2xl shadow-lg p-4 flex flex-col md:flex-row items-center justify-between gap-4">
-              <div className="text-sm text-gray-600">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="text-xs sm:text-sm text-gray-600 text-center md:text-left">
                 Showing <span className="font-bold text-navy-800">{indexOfFirstRecord + 1}</span> to{" "}
                 <span className="font-bold text-navy-800">
                   {Math.min(indexOfLastRecord, filteredRecords.length)}
@@ -377,13 +378,13 @@ function SearchPage() {
                 of <span className="font-bold text-orange-500">{filteredRecords.length}</span> records
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 sm:gap-2">
                 <button
                   onClick={() => setCurrentPage(currentPage - 1)}
                   disabled={currentPage === 1}
-                  className="p-2 rounded-lg border border-gray-300 hover:bg-orange-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                  className="p-1.5 sm:p-2 rounded-lg border border-gray-300 hover:bg-orange-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
                 >
-                  <ChevronLeft size={18} />
+                  <ChevronLeft size={16} />
                 </button>
 
                 {[...Array(totalPages)].map((_, idx) => {
@@ -397,9 +398,9 @@ function SearchPage() {
                       <button
                         key={pageNum}
                         onClick={() => setCurrentPage(pageNum)}
-                        className={`w-10 h-10 rounded-lg font-semibold transition ${
+                        className={`w-8 h-8 sm:w-10 sm:h-10 text-xs sm:text-sm rounded-lg font-semibold transition ${
                           currentPage === pageNum
-                            ? "bg-orange-500 text-white shadow-lg"
+                            ? "bg-orange-500 text-white shadow-md"
                             : "border border-gray-300 hover:bg-orange-50"
                         }`}
                       >
@@ -407,7 +408,7 @@ function SearchPage() {
                       </button>
                     );
                   } else if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
-                    return <span key={pageNum} className="px-2 text-gray-400">...</span>;
+                    return <span key={pageNum} className="px-1 sm:px-2 text-gray-400">...</span>;
                   }
                   return null;
                 })}
@@ -415,9 +416,9 @@ function SearchPage() {
                 <button
                   onClick={() => setCurrentPage(currentPage + 1)}
                   disabled={currentPage === totalPages}
-                  className="p-2 rounded-lg border border-gray-300 hover:bg-orange-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                  className="p-1.5 sm:p-2 rounded-lg border border-gray-300 hover:bg-orange-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
                 >
-                  <ChevronRight size={18} />
+                  <ChevronRight size={16} />
                 </button>
               </div>
             </div>
