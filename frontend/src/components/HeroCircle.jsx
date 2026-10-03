@@ -1,20 +1,33 @@
 import { useState, useEffect } from "react";
 
+function useViewportWidth() {
+  const [width, setWidth] = useState(
+    typeof window !== "undefined" ? window.innerWidth : 1024
+  );
+
+  useEffect(() => {
+    const onResize = () => setWidth(window.innerWidth);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  return width;
+}
+
 function HeroCircle() {
-  // Center Circle Images (auto-shift)
   const images = [
     {
       url: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&q=80",
-      caption: "Agricultural Land"
+      caption: "Agricultural Land",
     },
     {
       url: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&q=80",
-      caption: "Property Documentation"
+      caption: "Property Documentation",
     },
     {
       url: "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=800&q=80",
-      caption: "Smart Land Records"
-    }
+      caption: "Smart Land Records",
+    },
   ];
 
   // Services around circle
@@ -31,6 +44,7 @@ function HeroCircle() {
 
   const [currentImage, setCurrentImage] = useState(0);
   const [activeService, setActiveService] = useState(0);
+  const viewportWidth = useViewportWidth();
 
   useEffect(() => {
     const imageInterval = setInterval(() => {
@@ -46,11 +60,24 @@ function HeroCircle() {
     return () => clearInterval(serviceInterval);
   }, []);
 
-  const radius = 250;
+  // ---------- Size calculation ----------
+  const isMobile = viewportWidth < 640;
+  const MOBILE_BASE_BOX = 348;
+  const scale = isMobile
+    ? Math.min(1, (viewportWidth - 8) / MOBILE_BASE_BOX)
+    : 1;
+
+  const boxSize = isMobile ? Math.round(MOBILE_BASE_BOX * scale) : 580;
+  const radius = isMobile ? Math.round(128 * scale) : 250;
+  const circleSize = isMobile ? Math.round(150 * scale) : 320;
+  const labelFont = isMobile ? Math.max(9, Math.round(10 * scale * 10) / 10) : 14;
+  const labelPadX = isMobile ? Math.round(10 * scale) : 16;
+  const labelPadY = isMobile ? Math.round(6 * scale) : 10;
+  const borderWidth = isMobile ? 4 : 6;
 
   return (
-    <div className="relative w-full flex items-center justify-center py-8">
-      <div className="relative" style={{ width: "580px", height: "580px" }}>
+    <div className="relative w-full max-w-full overflow-hidden flex items-center justify-center py-4 sm:py-8">
+      <div className="relative" style={{ width: boxSize, height: boxSize }}>
 
         {/* Outer Rotating Rings */}
         <div
@@ -63,7 +90,15 @@ function HeroCircle() {
         />
 
         {/* Center Circle with Auto-Shifting Images */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full overflow-hidden shadow-2xl border-[6px] border-white">
+        <div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full overflow-hidden shadow-2xl border-white"
+          style={{
+            width: circleSize,
+            height: circleSize,
+            borderWidth: borderWidth,
+            borderStyle: "solid",
+          }}
+        >
           {images.map((img, idx) => (
             <div
               key={idx}
@@ -73,14 +108,17 @@ function HeroCircle() {
                 transition: "opacity 1.5s ease-in-out",
                 backgroundImage: `url(${img.url})`,
                 backgroundSize: "cover",
-                backgroundPosition: "center"
+                backgroundPosition: "center",
               }}
             />
           ))}
 
           {/* Caption at bottom */}
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent p-3">
-            <p className="text-white text-sm font-bold text-center drop-shadow-lg">
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent p-2 sm:p-3">
+            <p
+              className="text-white font-bold text-center drop-shadow-lg leading-tight"
+              style={{ fontSize: isMobile ? 10 : 14 }}
+            >
               {images[currentImage].caption}
             </p>
           </div>
@@ -96,19 +134,21 @@ function HeroCircle() {
           return (
             <div
               key={idx}
-              className={`absolute top-1/2 left-1/2 transition-all duration-500 ${
-                isActive ? "scale-110 z-20" : "scale-100 z-10"
-              }`}
+              className={`absolute top-1/2 left-1/2 ${isActive ? "z-20" : "z-10"}`}
               style={{
                 transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`,
               }}
             >
               <div
-                className={`px-4 py-2.5 rounded-lg shadow-lg font-bold text-sm whitespace-nowrap transition-all duration-500 cursor-pointer ${
+                className={`rounded-lg shadow-lg font-bold whitespace-nowrap transition-all duration-500 cursor-pointer ${
                   isActive
-                    ? "bg-orange-500 text-white shadow-2xl shadow-orange-500/60"
+                    ? "bg-orange-500 text-white shadow-2xl shadow-orange-500/60 scale-110"
                     : "bg-white text-navy-800 hover:bg-orange-50 hover:scale-105"
                 }`}
+                style={{
+                  fontSize: labelFont,
+                  padding: `${labelPadY}px ${labelPadX}px`,
+                }}
               >
                 {service.name}
               </div>
@@ -117,12 +157,15 @@ function HeroCircle() {
         })}
 
         {/* Center Glow Effect */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full pointer-events-none">
+        <div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none"
+          style={{ width: circleSize, height: circleSize }}
+        >
           <div
             className="absolute inset-0 rounded-full opacity-30 blur-3xl"
             style={{
               background: "radial-gradient(circle, #FF6B35 0%, transparent 70%)",
-              animation: "glow 3s ease-in-out infinite"
+              animation: "glow 3s ease-in-out infinite",
             }}
           />
         </div>
