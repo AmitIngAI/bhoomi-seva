@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+ml-model/venv/
+**/venv/
+
+# Build outputs
+backend/target/
+**/target/
+frontend/dist/
+frontend/build/
+
+# Env / secrets (bahut zaroori)
+.env
+.env.*
+!.env.example
+**/application-local.properties
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.Python
+
+# IDE
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Optional: large ML binaries agar GitHub pe size issue aaye
+# (agar deploy ke liye chahiye toh mat ignore karo)
+# ml-model/*.pkl
