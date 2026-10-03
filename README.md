@@ -108,7 +108,7 @@ Traditional revenue office visits for land records verification are slow, paper-
 
 ## 🏗️ System Architecture
 
-```text
+```
 ┌─────────────────────────────────────────────────────────────┐
 │                      CLIENT LAYER                           │
 │  ┌───────────────────────────────────────────────────────┐  │
@@ -135,7 +135,7 @@ Traditional revenue office visits for land records verification are slow, paper-
 │  │  (bhoomi_seva_db)      │  │ │  │  (Land Valuation)    │  │
 │  └────────────────────────┘  │ │  └──────────────────────┘  │
 └──────────────────────────────┘ └────────────────────────────┘
-
+```
 🔒 Security
 This application implements production-grade security standards:
 
