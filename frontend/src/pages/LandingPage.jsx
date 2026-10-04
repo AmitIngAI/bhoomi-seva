@@ -65,6 +65,11 @@ function LandingPage() {
     loadStats();
   }, []);
 
+  useEffect(() => {
+  fetch("https://bhoomi-seva.onrender.com/health").catch(() => {});
+  fetch("https://bhoomi-ml-api.onrender.com/health").catch(() => {});
+  }, []);
+
   const loadStats = async () => {
     try {
       const response = await landRecordsAPI.getStats();
