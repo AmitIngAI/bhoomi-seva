@@ -44,10 +44,10 @@ function SearchPage() {
         landRecordsAPI.getVillages(),
         landRecordsAPI.getLandTypes(),
       ]);
-      setAllRecords(recordsRes.data);
-      setFilteredRecords(recordsRes.data);
-      setVillages(vRes.data);
-      setLandTypes(lRes.data);
+      setAllRecords(recordsRes.data || []);
+      setFilteredRecords(recordsRes.data || []);
+      setVillages(vRes.data || []);
+      setLandTypes(lRes.data || []);
     } catch (err) {
       console.error("Error loading data:", err);
     } finally {
@@ -165,19 +165,26 @@ function SearchPage() {
   const indexOfLastRecord = currentPage * recordsPerPage;
   const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
   const currentRecords = filteredRecords.slice(indexOfFirstRecord, indexOfLastRecord);
-  const totalPages = Math.ceil(filteredRecords.length / recordsPerPage);
+  const totalPages = Math.ceil(filteredRecords.length / recordsPerPage) || 1;
 
   const renderPrediction = (record, textClass = "text-green-700") => {
     const p = predictions[record.recordId];
     if (p === undefined) {
       return <Loader2 className="animate-spin inline text-orange-500" size={14} />;
     }
+    if (p === null) return <span className="text-gray-400">N/A</span>;
     return <span className={textClass}>{formatPrice(p)}</span>;
   };
 
+  const dist = (record, keyWithKm, keyWithoutKm) => {
+    const val = record[keyWithKm] ?? record[keyWithoutKm];
+    return val !== null && val !== undefined && val !== "" ? val : "—";
+  };
+
   return (
-    <div className="w-full min-w-0 bg-gray-50 py-4 sm:py-8">
-      <div className="w-full max-w-[1600px] mx-auto px-1 sm:px-4 lg:px-8">
+    <div className="w-full min-w-0 bg-gray-50 pt-20 sm:pt-24 pb-8">
+      {/* pt-20/24 = space for fixed orange navbar so filters don't hide under it */}
+      <div className="w-full max-w-[1600px] mx-auto px-2 sm:px-4 lg:px-8">
 
         {/* Header */}
         <div className="text-center mb-6 sm:mb-8">
@@ -264,9 +271,9 @@ function SearchPage() {
           </div>
         ) : (
           <>
-            {/* DESKTOP TABLE  */}
-            <div className="hidden lg:block bg-white rounded-2xl shadow-lg mb-4 w-full max-w-full">
-              <div className="overflow-x-auto w-full max-w-full rounded-2xl">
+            {/* ================= DESKTOP TABLE ================= */}
+            <div className="hidden lg:block bg-white rounded-2xl shadow-lg mb-4 w-full max-w-full overflow-hidden">
+              <div className="overflow-x-auto w-full">
                 <table className="min-w-[1800px] w-full text-xs">
                   <thead className="bg-gradient-to-r from-navy-800 to-navy-900 text-white">
                     <tr>
@@ -311,9 +318,7 @@ function SearchPage() {
                         <td className="px-3 py-3 text-gray-700">{record.taluka || "N/A"}</td>
                         <td className="px-3 py-3 text-gray-700">{record.district || "N/A"}</td>
                         <td className="px-3 py-3">
-                          <span
-                            className={`inline-block px-2 py-1 rounded-full text-[10px] font-medium whitespace-nowrap ${landTypeClass(record.landType)}`}
-                          >
+                          <span className={`inline-block px-2 py-1 rounded-full text-[10px] font-medium whitespace-nowrap ${landTypeClass(record.landType)}`}>
                             {record.landType}
                           </span>
                         </td>
@@ -329,35 +334,22 @@ function SearchPage() {
                           {record.landAreaSqft?.toLocaleString()}
                         </td>
                         <td className="px-3 py-3">
-                          <span
-                            className={`px-2 py-1 rounded text-[10px] font-medium whitespace-nowrap ${roadClass(record.roadConnectivity)}`}
-                          >
+                          <span className={`px-2 py-1 rounded text-[10px] font-medium whitespace-nowrap ${roadClass(record.roadConnectivity)}`}>
                             {record.roadConnectivity}
                           </span>
                         </td>
-                        <td className="px-3 py-3 text-right text-gray-700">{record.distanceHighwayKm}</td>
-                        <td className="px-3 py-3 text-right text-gray-700">{record.distanceCityKm}</td>
-                        <td className="px-3 py-3 text-right text-gray-700">{record.distanceSchoolKm}</td>
-                        <td className="px-3 py-3 text-right text-gray-700">{record.distanceHospitalKm}</td>
-                        <td className="px-3 py-3 text-right text-gray-700">{record.distanceMarketKm}</td>
-                        <td className="px-3 py-3 text-right text-gray-700">
-                          {formatPrice(record.historicalPrice)}
-                        </td>
-                        <td className="px-3 py-3 text-right text-gray-700">
-                          {formatPrice(record.governmentRate)}
-                        </td>
-                        <td className="px-3 py-3 text-right text-gray-700">
-                          {formatPrice(record.salePrice)}
-                        </td>
-                        <td className="px-3 py-3 text-right font-bold text-orange-500">
-                          {formatPrice(record.currentMarketPrice)}
-                        </td>
-                        <td className="px-3 py-3 text-right font-bold bg-orange-50">
-                          {renderPrediction(record)}
-                        </td>
-                        <td className="px-3 py-3 font-bold text-navy-800">
-                          {record.surveyNo}
-                        </td>
+                        {/* ✅ FIXED distances */}
+                        <td className="px-3 py-3 text-right text-gray-700">{dist(record, "distanceHighwayKm", "distanceHighway")}</td>
+                        <td className="px-3 py-3 text-right text-gray-700">{dist(record, "distanceCityKm", "distanceCity")}</td>
+                        <td className="px-3 py-3 text-right text-gray-700">{dist(record, "distanceSchoolKm", "distanceSchool")}</td>
+                        <td className="px-3 py-3 text-right text-gray-700">{dist(record, "distanceHospitalKm", "distanceHospital")}</td>
+                        <td className="px-3 py-3 text-right text-gray-700">{dist(record, "distanceMarketKm", "distanceMarket")}</td>
+                        <td className="px-3 py-3 text-right text-gray-700">{formatPrice(record.historicalPrice)}</td>
+                        <td className="px-3 py-3 text-right text-gray-700">{formatPrice(record.governmentRate)}</td>
+                        <td className="px-3 py-3 text-right text-gray-700">{formatPrice(record.salePrice)}</td>
+                        <td className="px-3 py-3 text-right font-bold text-orange-500">{formatPrice(record.currentMarketPrice)}</td>
+                        <td className="px-3 py-3 text-right font-bold bg-orange-50">{renderPrediction(record)}</td>
+                        <td className="px-3 py-3 font-bold text-navy-800 whitespace-nowrap">{record.surveyNo}</td>
                         <td className="px-3 py-3">
                           <div className="flex items-center gap-1 text-gray-700 whitespace-nowrap">
                             <MapPin size={12} className="text-orange-500" />
@@ -371,7 +363,7 @@ function SearchPage() {
               </div>
             </div>
 
-            {/* MOBILE / TABLET CARDS (below lg) */}
+            {/* ================= MOBILE / TABLET CARDS ================= */}
             <div className="lg:hidden space-y-3 mb-4">
               {currentRecords.map((record, idx) => (
                 <div
@@ -434,13 +426,27 @@ function SearchPage() {
                       <p className="font-bold">{renderPrediction(record)}</p>
                     </div>
                   </div>
-
                   <div className="mt-3 pt-3 border-t grid grid-cols-5 gap-1 text-center text-[11px] text-gray-600">
-                    <div><p className="text-gray-400">Highway</p>{record.distanceHighwayKm} km</div>
-                    <div><p className="text-gray-400">City</p>{record.distanceCityKm} km</div>
-                    <div><p className="text-gray-400">School</p>{record.distanceSchoolKm} km</div>
-                    <div><p className="text-gray-400">Hospital</p>{record.distanceHospitalKm} km</div>
-                    <div><p className="text-gray-400">Market</p>{record.distanceMarketKm} km</div>
+                    <div>
+                      <p className="text-gray-400">Highway</p>
+                      {dist(record, "distanceHighwayKm", "distanceHighway")} km
+                    </div>
+                    <div>
+                      <p className="text-gray-400">City</p>
+                      {dist(record, "distanceCityKm", "distanceCity")} km
+                    </div>
+                    <div>
+                      <p className="text-gray-400">School</p>
+                      {dist(record, "distanceSchoolKm", "distanceSchool")} km
+                    </div>
+                    <div>
+                      <p className="text-gray-400">Hospital</p>
+                      {dist(record, "distanceHospitalKm", "distanceHospital")} km
+                    </div>
+                    <div>
+                      <p className="text-gray-400">Market</p>
+                      {dist(record, "distanceMarketKm", "distanceMarket")} km
+                    </div>
                   </div>
                 </div>
               ))}
