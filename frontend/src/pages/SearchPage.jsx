@@ -85,8 +85,8 @@ function SearchPage() {
             distance_highway_km: parseFloat(record.distanceHighwayKm) || 0,
             distance_city_km: parseFloat(record.distanceCityKm) || 0,
             distance_school_km: parseFloat(record.distanceSchoolKm) || 0,
-            distance_hospital: parseFloat(record.distanceHospitalKm) || 0,
-            distance_market: parseFloat(record.distanceMarketKm) || 0,
+            distance_hospital: parseFloat(record.distanceHospital) || 0,
+            distance_market: parseFloat(record.distanceMarket) || 0,
           };
 
           const res = await predictionAPI.predict(payload);
