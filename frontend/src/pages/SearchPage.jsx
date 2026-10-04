@@ -11,6 +11,7 @@ function SearchPage() {
   const [allRecords, setAllRecords] = useState([]);
   const [filteredRecords, setFilteredRecords] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [slowLoad, setSlowLoad] = useState(false); 
   const [villages, setVillages] = useState([]);
   const [landTypes, setLandTypes] = useState([]);
   const [predictions, setPredictions] = useState({});
@@ -37,6 +38,8 @@ function SearchPage() {
   }, [currentPage, filteredRecords]);
 
   const loadAllData = async () => {
+    const slowTimer = setTimeout(() => setSlowLoad(true), 5000);
+
     try {
       setLoading(true);
       const [recordsRes, vRes, lRes] = await Promise.all([
@@ -51,6 +54,8 @@ function SearchPage() {
     } catch (err) {
       console.error("Error loading data:", err);
     } finally {
+      clearTimeout(slowTimer);
+      setSlowLoad(false);
       setLoading(false);
     }
   };
@@ -183,7 +188,6 @@ function SearchPage() {
 
   return (
     <div className="w-full min-w-0 bg-gray-50 pt-20 sm:pt-24 pb-8">
-      {/* pt-20/24 = space for fixed orange navbar so filters don't hide under it */}
       <div className="w-full max-w-[1600px] mx-auto px-2 sm:px-4 lg:px-8">
 
         {/* Header */}
@@ -258,6 +262,11 @@ function SearchPage() {
           <div className="bg-white rounded-2xl shadow-lg p-12 sm:p-20 text-center">
             <Loader2 className="animate-spin mx-auto text-orange-500" size={48} />
             <p className="text-gray-600 mt-4 text-lg">Loading records...</p>
+            {slowLoad && (
+              <p className="text-orange-600 mt-3 text-sm font-medium">
+                Server Starting, Please Wait 30 to 60 sec.
+              </p>
+            )}
           </div>
         ) : filteredRecords.length === 0 ? (
           <div className="bg-white rounded-2xl shadow-lg p-12 sm:p-20 text-center">
@@ -271,7 +280,7 @@ function SearchPage() {
           </div>
         ) : (
           <>
-            {/* ================= DESKTOP TABLE ================= */}
+            {/* DESKTOP TABLE */}
             <div className="hidden lg:block bg-white rounded-2xl shadow-lg mb-4 w-full max-w-full overflow-hidden">
               <div className="overflow-x-auto w-full">
                 <table className="min-w-[1800px] w-full text-xs">
@@ -338,7 +347,6 @@ function SearchPage() {
                             {record.roadConnectivity}
                           </span>
                         </td>
-                        {/* ✅ FIXED distances */}
                         <td className="px-3 py-3 text-right text-gray-700">{dist(record, "distanceHighwayKm", "distanceHighway")}</td>
                         <td className="px-3 py-3 text-right text-gray-700">{dist(record, "distanceCityKm", "distanceCity")}</td>
                         <td className="px-3 py-3 text-right text-gray-700">{dist(record, "distanceSchoolKm", "distanceSchool")}</td>
@@ -363,7 +371,7 @@ function SearchPage() {
               </div>
             </div>
 
-            {/* ================= MOBILE / TABLET CARDS ================= */}
+            {/* MOBILE / TABLET CARDS */}
             <div className="lg:hidden space-y-3 mb-4">
               {currentRecords.map((record, idx) => (
                 <div
@@ -426,6 +434,7 @@ function SearchPage() {
                       <p className="font-bold">{renderPrediction(record)}</p>
                     </div>
                   </div>
+
                   <div className="mt-3 pt-3 border-t grid grid-cols-5 gap-1 text-center text-[11px] text-gray-600">
                     <div>
                       <p className="text-gray-400">Highway</p>
