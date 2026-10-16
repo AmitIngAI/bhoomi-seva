@@ -38,6 +38,7 @@ public class SecurityConfig {
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
             // Public endpoints (no token required)
+            .requestMatchers("/ping", "/health").permitAll()                       
             .requestMatchers("/api/auth/**").permitAll()
             .requestMatchers("/api/contact").permitAll()  // Public contact form
             .requestMatchers("/api/land-records/**").permitAll()
