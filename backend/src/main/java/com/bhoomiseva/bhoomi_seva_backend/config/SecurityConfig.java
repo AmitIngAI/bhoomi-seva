@@ -4,6 +4,7 @@ import com.bhoomiseva.bhoomi_seva_backend.security.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -37,15 +38,35 @@ public class SecurityConfig {
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-            // Public endpoints (no token required)
-            .requestMatchers("/ping", "/health").permitAll()                       
-            .requestMatchers("/api/auth/**").permitAll()
-            .requestMatchers("/api/contact").permitAll()  // Public contact form
-            .requestMatchers("/api/land-records/**").permitAll()
-            .requestMatchers("/api/predictions/**").permitAll()
-            // Everything else needs authentication check
-            .anyRequest().permitAll()
-           )
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                // Public
+                .requestMatchers("/ping", "/health").permitAll()
+                .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/test").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/contact").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/land-records/**").permitAll()
+                .requestMatchers("/api/predictions/**").permitAll()
+
+                // Admin only
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/contact/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/land-records/**").hasRole("ADMIN") // POST/PUT/DELETE
+
+                // Baaki sab ke liye login zaroori
+                .anyRequest().authenticated()
+            )
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint((request, response, e) -> {
+                    response.setStatus(401);
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"success\":false,\"message\":\"Login required\"}");
+                })
+                .accessDeniedHandler((request, response, e) -> {
+                    response.setStatus(403);
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"success\":false,\"message\":\"Access denied\"}");
+                })
+            )
             .formLogin(form -> form.disable())
             .httpBasic(basic -> basic.disable())
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -53,10 +74,9 @@ public class SecurityConfig {
         return http.build();
     }
 
-        @Bean
+    @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Allow local + render frontend origins
         configuration.setAllowedOriginPatterns(List.of(
             "http://localhost:5173",
             "http://localhost:3000",
