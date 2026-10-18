@@ -3,11 +3,13 @@ package com.bhoomiseva.bhoomi_seva_backend.controller;
 import com.bhoomiseva.bhoomi_seva_backend.dto.AuthResponse;
 import com.bhoomiseva.bhoomi_seva_backend.dto.LoginRequest;
 import com.bhoomiseva.bhoomi_seva_backend.dto.RegisterRequest;
+import com.bhoomiseva.bhoomi_seva_backend.repository.UserRepository;
 import com.bhoomiseva.bhoomi_seva_backend.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -20,6 +22,17 @@ public class AuthController {
 
     @Autowired
     private AuthService authService;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    // Logged-in user ki hi userId hai ya nahi
+    private boolean isOwner(Authentication auth, Long userId) {
+        if (auth == null || userId == null) return false;
+        return userRepository.findByEmail(auth.getName())
+                .map(u -> userId.equals(u.getUserId()))
+                .orElse(false);
+    }
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
@@ -46,10 +59,15 @@ public class AuthController {
     }
 
     @PostMapping("/change-password")
-    public ResponseEntity<?> changePassword(@RequestBody Map<String, String> body) {
+    public ResponseEntity<?> changePassword(@RequestBody Map<String, String> body, Authentication auth) {
         try {
+            Long userId = Long.valueOf(body.get("userId"));
+            if (!isOwner(auth, userId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(Map.of("message", "You can change only your own password"));
+            }
             authService.changePassword(
-                Long.valueOf(body.get("userId")),
+                userId,
                 body.get("oldPassword"),
                 body.get("newPassword")
             );
@@ -60,10 +78,15 @@ public class AuthController {
     }
 
     @PostMapping("/update-profile")
-    public ResponseEntity<?> updateProfile(@RequestBody Map<String, Object> body) {
+    public ResponseEntity<?> updateProfile(@RequestBody Map<String, Object> body, Authentication auth) {
         try {
+            Long userId = Long.valueOf(body.get("userId").toString());
+            if (!isOwner(auth, userId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(Map.of("message", "You can update only your own profile"));
+            }
             var user = authService.updateProfile(
-                Long.valueOf(body.get("userId").toString()),
+                userId,
                 (String) body.get("fullName"),
                 (String) body.get("mobile"),
                 (String) body.get("email")
