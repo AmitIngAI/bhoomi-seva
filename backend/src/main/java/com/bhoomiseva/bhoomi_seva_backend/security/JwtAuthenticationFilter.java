@@ -48,14 +48,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
 
-        // ✅ CHECK USER STATUS (Deleted/Blocked) ON EVERY REQUEST
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            // Check if user exists in database
             Optional<User> userOpt = userRepository.findByEmail(email);
 
             if (userOpt.isEmpty()) {
-                // User deleted → Return 401 with USER_DELETED code
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.setContentType("application/json");
                 response.getWriter().write(
@@ -66,7 +63,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             User user = userOpt.get();
 
-            // Check if user is blocked
             if (user.getStatus() == User.Status.BLOCKED) {
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 response.setContentType("application/json");
@@ -76,13 +72,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
 
-            // If valid → Set authentication
             if (jwtUtil.validateToken(token, email)) {
+                // "ADMIN" ya "ROLE_ADMIN", dono se ROLE_ADMIN banega
+                String roleName = (role == null) ? "" : role.trim();
+                if (roleName.startsWith("ROLE_")) {
+                    roleName = roleName.substring(5);
+                }
+
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(
                                 email,
                                 null,
-                                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role))
+                                roleName.isEmpty()
+                                        ? Collections.emptyList()
+                                        : Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + roleName))
                         );
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
