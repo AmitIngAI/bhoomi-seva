@@ -1,5 +1,6 @@
 package com.bhoomiseva.bhoomi_seva_backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,6 +29,7 @@ public class User {
     @Column(name = "mobile", nullable = false, unique = true, length = 15)
     private String mobile;
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(name = "password", nullable = false)
     private String password;
 
@@ -35,7 +37,6 @@ public class User {
     @Column(name = "role", nullable = false, length = 20)
     private Role role;
 
-    // ✅ NEW - Status field
     @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 20)
     private Status status = Status.ACTIVE;
@@ -64,7 +65,6 @@ public class User {
         CITIZEN, ADMIN
     }
 
-    // ✅ NEW - Status enum
     public enum Status {
         ACTIVE, BLOCKED
     }
