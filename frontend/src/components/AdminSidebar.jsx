@@ -2,28 +2,27 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import {
   LayoutDashboard, Database, FileText, FileBadge, Building2,
-  Users, Settings, LogOut, HelpCircle
+  Users, Settings, LogOut, HelpCircle, Mail
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { contactAPI } from "../services/api";
-import { Mail } from "lucide-react";
 
-  function AdminSidebar() {
-    const { logout } = useAuth();
-    const navigate = useNavigate();
-    const [unreadMessages, setUnreadMessages] = useState(0);
+function AdminSidebar({ isOpen = false, onClose = () => {} }) {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+  const [unreadMessages, setUnreadMessages] = useState(0);
 
-    useEffect(() => {
-      const fetchUnread = async () => {
-        try {
-          const res = await contactAPI.getUnreadCount();
-          setUnreadMessages(res.data?.count || 0);
-        } catch (err) { console.error(err); }
-      };
-      fetchUnread();
-      const interval = setInterval(fetchUnread, 30000);
-      return () => clearInterval(interval);
-    }, []);
+  useEffect(() => {
+    const fetchUnread = async () => {
+      try {
+        const res = await contactAPI.getUnreadCount();
+        setUnreadMessages(res.data?.count || 0);
+      } catch (err) { console.error(err); }
+    };
+    fetchUnread();
+    const interval = setInterval(fetchUnread, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -42,7 +41,11 @@ import { Mail } from "lucide-react";
   ];
 
   return (
-    <aside className="w-64 bg-navy-800 text-white h-screen flex flex-col fixed left-0 top-0 z-30">
+    <aside
+      className={`w-64 bg-navy-800 text-white h-screen flex flex-col fixed left-0 top-0 z-40 transform transition-transform duration-200 lg:translate-x-0 ${
+        isOpen ? "translate-x-0" : "-translate-x-full"
+      }`}
+    >
       {/* Logo */}
       <div className="p-5 border-b border-navy-700 flex items-center gap-3">
         <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center flex-shrink-0">
@@ -65,20 +68,21 @@ import { Mail } from "lucide-react";
 
       {/* Menu Items */}
       <nav className="flex-1 overflow-y-auto py-4">
-      {menuItems.map((item, idx) => (
-        <NavLink key={idx} to={item.path} end={item.path === "/admin"}
-          className={({ isActive }) =>
-            `flex items-center gap-3 px-5 py-3 hover:bg-navy-700 transition ${
-              isActive ? "bg-orange-500 border-l-4 border-white" : "border-l-4 border-transparent"
-            }`
-          }>
-          <item.icon size={20} />
-          <span className="text-sm font-medium flex-1">{item.label}</span>
-          {item.badge && (
-            <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full font-bold">{item.badge}</span>
-          )}
-        </NavLink>
-      ))}
+        {menuItems.map((item, idx) => (
+          <NavLink key={idx} to={item.path} end={item.path === "/admin"}
+            onClick={onClose}
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-5 py-3 hover:bg-navy-700 transition ${
+                isActive ? "bg-orange-500 border-l-4 border-white" : "border-l-4 border-transparent"
+              }`
+            }>
+            <item.icon size={20} />
+            <span className="text-sm font-medium flex-1">{item.label}</span>
+            {item.badge && (
+              <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full font-bold">{item.badge}</span>
+            )}
+          </NavLink>
+        ))}
       </nav>
 
       {/* Logout */}
