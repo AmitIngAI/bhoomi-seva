@@ -109,19 +109,19 @@ Traditional revenue office visits for land records verification are slow, paper-
 ## 📸 Screenshots
 
 ### 🏠 Landing Page
-![Landing Page](<img width="1913" height="928" alt="1" src="https://github.com/user-attachments/assets/bba9395c-9e02-4077-8cbf-943f9307119d" />)
+![Landing Page](screenshots/1.png)
 
 ### 🔐 Login Page
-![Login](<img width="1911" height="931" alt="1 1" src="https://github.com/user-attachments/assets/65159e2d-6a0c-459d-b8f7-b290a12b5294" />)
+![Login](screenshots/1.1.png)
 
 ### 👤 User Dashboard
-![User Dashboard](<img width="1920" height="932" alt="2" src="https://github.com/user-attachments/assets/9ae60f30-09e3-402d-8825-45fdaf451713" />)
+![User Dashboard](screenshots/2.png)
 
 ### 👤 Admin Dashboard
-![Admin Dashboard](<img width="1920" height="933" alt="A1" src="https://github.com/user-attachments/assets/bc4b805f-2b0b-4b52-a8e8-580fcd5b38f0" />)
+![Admin Dashboard](screenshots/A1.png)
 
 ### 🔧GIS MAP View
-![GIS MAP View](<img width="1920" height="932" alt="5" src="https://github.com/user-attachments/assets/8026f418-aff0-421a-a5b7-6948f4d9825b" />)
+![GIS MAP View](screenshots/5.png)
 
 
 
